@@ -1,0 +1,13 @@
+.page-wrapper {
+    overflow-x: hidden;
+    margin: 0 auto;
+    min-width: 320px;
+    height: 100%;
+    padding: 0 24px 24px 24px;
+}
+
+@media (min-width: 1024px) {
+    .page-wrapper {
+        max-width: 1400px;
+    }
+}
