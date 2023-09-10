@@ -1,0 +1,82 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - .env.dev
+    ports:
+      - 5432:5432
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - 6379:6379
+
+  backend:
+    build: backend
+    restart: always
+    command: >
+      sh -c "cd /app && alembic stamp head &&
+      alembic revision --autogenerate -m 'Added required tables' &&
+                               alembic upgrade head &&
+                               python3 init_db.py &&
+                               python3 run.py"
+    env_file:
+      - .env.dev
+    ports:
+      - 2223:2223
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build: frontend
+    restart: always
+    command: >
+      sh -c "npm start"
+    ports:
+      - "3010:3010"
+    depends_on:
+      - backend
+#
+#  app1:
+#    build: app1
+#    restart: always
+#    command: >
+#      sh -c "alembic revision --autogenerate -m 'Added required tables' &&
+#                   alembic upgrade head &&
+#                   python3 init_db.py &&
+#                   python3 run.py"
+#    env_file:
+#      - .env.dev
+#    ports:
+#      - 2224:2224
+#    depends_on:
+#      - postgres
+#      - auth
+
+
+
+#  redis:
+#    image: redis:alpine
+#    restart: always
+
+#  mongo:
+#    image: mongo
+#    env_file:
+#      - ./.env.dev
+#    environment:
+#      ###  Static way ###
+#      # MYSQL_ROOT_PASSWORD: "root_password"
+#      # MYSQL_ALLOW_EMPTY_PASSWORD: "password"
+#      # MYSQL_RANDOM_ROOT_PASSWORD: "password"
+#
+#      ### Substitution ###
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+#      MYSQL_RANDOM_ROOT_PASSWORD: ${MYSQL_RANDOM_ROOT_PASSWORD}
+
+
